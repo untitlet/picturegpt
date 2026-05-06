@@ -49,22 +49,15 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onHelpTo
             ))}
           </nav>
 
-          {/* Right Actions */}
+          {/* Right Actions: Only Help Button */}
           <div className="flex items-center gap-2">
             <button
               onClick={onHelpToggle}
-              className="ui-btn-ghost w-10 h-10 rounded-full flex items-center justify-center"
-              title="Помощь"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200"
+              title="Помощь и документация"
             >
               <span className="text-lg">❓</span>
-            </button>
-            
-            <div className="w-px h-6 bg-slate-200 mx-1" />
-            
-            <button className="ui-btn-ghost w-10 h-10 rounded-full flex items-center justify-center text-slate-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+              <span className="hidden sm:inline">Помощь</span>
             </button>
           </div>
         </div>
