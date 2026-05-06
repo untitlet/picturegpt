@@ -30,6 +30,15 @@ export const env = {
   PORT: parseInt(process.env.PORT || '3000', 10),
   STORAGE_PATH: process.env.STORAGE_PATH || './storage',
 
+  // S3/MinIO Object Storage
+  S3_ENDPOINT: process.env.S3_ENDPOINT || 'http://minio:9000',
+  S3_ACCESS_KEY: process.env.S3_ACCESS_KEY || 'minio_admin',
+  S3_SECRET_KEY: process.env.S3_SECRET_KEY || 'minio_secure_password',
+  S3_BUCKET: process.env.S3_BUCKET || 'bx-images',
+
+  // Worker
+  WORKER_CONCURRENCY: parseInt(process.env.WORKER_CONCURRENCY || '2', 10),
+
   // Frontend
   VITE_API_URL: process.env.VITE_API_URL || '/api',
 };
