@@ -21,9 +21,12 @@ export const env = {
   BITRIX24_CLIENT_ID: process.env.BITRIX24_CLIENT_ID || '',
   BITRIX24_CLIENT_SECRET: process.env.BITRIX24_CLIENT_SECRET || '',
   BITRIX24_REDIRECT_URI: process.env.BITRIX24_REDIRECT_URI || '',
+  BITRIX_TOKEN: process.env.BITRIX_TOKEN || '',
+  BITRIX_DOMAIN: process.env.BITRIX_DOMAIN || '',
 
   // Security
-  ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || '',
+  ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || 'default-key-change-me-in-production',
+  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET || 'webhook-secret-change-me',
 
   // App
   NODE_ENV: process.env.NODE_ENV || 'development',
@@ -33,7 +36,7 @@ export const env = {
   // S3/MinIO Object Storage
   S3_ENDPOINT: process.env.S3_ENDPOINT || 'http://minio:9000',
   S3_ACCESS_KEY: process.env.S3_ACCESS_KEY || 'minio_admin',
-  S3_SECRET_KEY: process.env.S3_SECRET_KEY || 'minio_secure_password',
+  S3_SECRET_KEY: process.env.S3_SECRET_KEY || 'minio_secure_password_change_me',
   S3_BUCKET: process.env.S3_BUCKET || 'bx-images',
 
   // Worker
@@ -48,7 +51,6 @@ const requiredEnvVars = [
   'DATABASE_URL',
   'REDIS_URL',
   'OPENROUTER_API_KEY',
-  'ENCRYPTION_KEY',
 ];
 
 for (const envVar of requiredEnvVars) {
