@@ -1,0 +1,55 @@
+```
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+backend/dist/
+backend/build/
+frontend/dist/
+frontend/build/
+build/
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# Cache directories
+.cache/
+.backend/prisma/migrations/
+.nyc_output/
+coverage/
+.nyc_output/
+.tmp/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Runtime data
+.pnp
+.pnp.js
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Prisma
+prisma/migrations/
+prisma/schema.prisma.bak
+
+# Docker
+.dockerenv
+```
