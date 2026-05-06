@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  queued
+  processing
+  completed
+  failed
+}
+
+enum EntityType {
+  deal
+  smart_process
+  contact
+  company
+}
+
+enum FieldType {
+  file
+  string
+  json
+  multiple
+}
+
+model Preset {
+  id                String   @id @default(uuid())
+  name              String
+  basePrompt        String   @map("base_prompt")
+  systemPrompt      String   @map("system_prompt")
+  referenceImageUrl String?  @map("reference_image_url")
+  aiModelPreset     String   @map("ai_model_preset")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  generationJobs GenerationJob[]
+
+  @@map("presets")
+}
+
+model GenerationJob {
+  id              String     @id @default(uuid())
+  userId          String     @map("user_id")
+  presetId        String?    @map("preset_id")
+  status          JobStatus  @default(queued)
+  prompt          String
+  negativePrompt  String?    @map("negative_prompt")
+  model           String
+  width           Int
+  height          Int
+  quality         Float
+  inputImageUrl   String?    @map("input_image_url")
+  outputImageUrls Json?      @map("output_image_urls")
+  errorMessage    String?    @map("error_message")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  completedAt     DateTime?  @map("completed_at")
+
+  preset Preset? @relation(fields: [presetId], references: [id])
+
+  @@index([status])
+  @@index([userId])
+  @@map("generation_jobs")
+}
+
+model BxEntityMapping {
+  id            String     @id @default(uuid())
+  entityType    EntityType @map("entity_type")
+  entityId      Int        @map("entity_id")
+  bxFieldCode   String     @map("bx_field_code")
+  fieldType     FieldType  @map("field_type")
+  lastSyncAt    DateTime?  @map("last_sync_at")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  @@unique([entityType, entityId, bxFieldCode])
+  @@index([entityType])
+  @@index([entityId])
+  @@map("bx_entity_mapping")
+}
+
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}
+
+model BitrixToken {
+  id             String   @id @default(uuid())
+  accessToken    String   @map("access_token")
+  refreshToken   String   @map("refresh_token")
+  expiresAt      DateTime @map("expires_at")
+  domain         String
+  memberId       String?  @map("member_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("bitrix_tokens")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String?
+  name      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  generationJobs GenerationJob[]
+
+  @@map("users")
+}
