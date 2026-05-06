@@ -1,262 +1,386 @@
-# 📊 Итоговая Сводка Реализации Всех Фаз
+# 📦 Итоговая сводка реализации мульти-портальных настроек
 
-## ✅ Выполненные Работы
+## ✅ Выполненные работы
 
-### Фаза 1: Стабильность (Завершена ранее)
-- ✅ S3 Object Storage (MinIO) для хранения изображений
-- ✅ Prometheus + Grafana мониторинг
-- ✅ Метрики производительности AI worker
-- ✅ Resource limits для контейнеров
+### 1. База данных и миграции
+**Файл:** `/workspace/backend/prisma/migrations/20231027_multi_portal_settings/migration.sql`
 
-### Фаза 2: UX/UI Улучшения (Завершена)
-**Файлы:**
-- `/workspace/frontend/src/components/comparison/ComparisonModal.tsx`
-- `/workspace/frontend/src/components/preset-builder/PresetBuilder.tsx`
+- Добавлен `portal_id` во все основные таблицы
+- Создана таблица `portals` для управления множественными порталами
+- Обновлена `app_settings` с поддержкой зашифрованных JSONB значений
+- Добавлены индексы для производительности
 
-**Функционал:**
-- ✅ Сравнение изображений Side-by-Side и Grid View
-- ✅ Визуальный конструктор пресетов с параметрами
-- ✅ Выбор модели, настройка steps/cfg/размеров
-- ✅ Загрузка референсных изображений
+### 2. Схемы валидации (Zod)
+**Файл:** `/workspace/backend/src/schemas/portal-settings.schema.ts`
 
-### Фаза 3: Deep Bitrix24 Integration (Завершена)
-**Файлы:**
-- `/workspace/backend/src/services/bitrix/webhooks/webhook.service.ts`
-- `/workspace/backend/src/services/bitrix/smart-process.service.ts`
+```typescript
+PortalSettingsSchema {
+  openrouter: { apiKey, models, moderation, abTest }
+  s3: { enabled, endpoint, credentials, bucket }
+  bitrix: { domain, entityType, imageField, useBitrixImage }
+  output: { dimensions, quality, margins }
+  session: { persistImages, autoSaveToBitrix }
+  security: { rbac, rateLimit }
+}
+```
 
-**Функционал:**
-- ✅ Обработка вебхуков Bitrix24 (ON_CRMD_ENTITY_*)
-- ✅ Поддержка смарт-процессов (typeId, поля, множественные значения)
-- ✅ Загрузка файлов в Bitrix Disk с привязкой к сущностям
-- ✅ REST API endpoints для работы со смарт-процессами
+### 3. Backend сервисы
+**Файл:** `/workspace/backend/src/services/settings/settings.service.ts`
 
-### Фаза 4: Advanced AI (Завершена)
-**Файлы:**
-- `/workspace/backend/src/services/ai/moderation/moderation.service.ts`
-- `/workspace/backend/src/services/ai/upscale.service.ts`
-- `/workspace/backend/src/services/ai/ab-test.service.ts`
-- `/workspace/backend/src/adapters/openrouter.ts` (обновлён)
+**Методы:**
+- `getPortalSettings(portalId)` - получение настроек с дешифровкой
+- `updatePortalSettings(portalId, updates)` - обновление с шифрованием
+- `getBitrixFields(portalId, entityType)` - динамическая загрузка полей CRM
+- `isS3Enabled(portalId)` - проверка доступности S3
+- `shouldUseBitrixImage(portalId)` - проверка флага использования Bitrix изображений
 
-**Функционал:**
-- ✅ Модерация контента (keyword-based, расширяемая)
-- ✅ Апскейлинг изображений 2x-4x через AI
-- ✅ A/B тестирование моделей с метриками
-- ✅ **OpenRouter API с ценами и лимитами**
-  - Кэширование списка моделей (5 минут)
-  - Фильтрация по capability (image/chat/vision)
-  - Информация о pricing, context_length, top_provider
-  - Endpoints: `/api/openrouter/models`, `/models/image`, `/models/vision`
+### 4. API Routes
+**Файл:** `/workspace/backend/src/routes/settings.routes.ts`
 
-### Фаза 5: Безопасность (Завершена)
-**Файлы:**
-- `/workspace/backend/src/services/encryption/encryption.service.ts`
-- `/workspace/backend/src/middleware/rbac.middleware.ts`
-- `/workspace/backend/src/middleware/rate-limit.middleware.ts`
+| Endpoint | Method | Описание |
+|----------|--------|----------|
+| `/api/settings` | GET | Получить настройки портала |
+| `/api/settings` | PUT | Обновить настройки |
+| `/api/settings/bitrix/fields` | GET | Загрузить поля Bitrix24 |
+| `/api/settings/s3/test` | POST | Тест подключения S3 |
+| `/api/settings/bitrix/test` | POST | Тест подключения Bitrix24 |
+| `/api/settings/bitrix/use-bitrix-image` | GET | Проверка режима использования Bitrix изображений |
 
-**Функционал:**
-- ✅ AES-256-GCM шифрование токенов и чувствительных данных
-- ✅ RBAC Middleware (admin/manager/viewer роли)
-- ✅ Rate Limiting (100/min общий, 10/min генерация, 5/min анализ)
-- ✅ Валидация через Zod
+### 5. Frontend компонент
+**Файл:** `/workspace/frontend/src/components/settings/SettingsPanel.tsx`
+
+**Вкладки:**
+1. **AI Модели** - OpenRouter настройки
+   - API Key (с шифрованием)
+   - Выбор моделей: генерация, пресеты (vision), апскейлинг
+   - Модерация и A/B тесты
+
+2. **Хранилище (S3)** - Настройки объектного хранилища
+   - Toggle включения S3
+   - Endpoint, Region, Credentials
+   - Тест подключения
+   - Предупреждение о временном хранении без S3
+
+3. **Bitrix24** - Интеграция с CRM
+   - Домен и авторизация
+   - Выбор типа сущности (Deal/Contact/Company/Smart Process)
+   - Динамическая загрузка полей типа FILE
+   - Toggle "Использовать изображение из Bitrix24"
+   - Валидация выбора поля
+
+4. **Параметры вывода** - Дефолтные значения
+   - Размеры (width/height)
+   - Качество, Steps, CFG Scale
+   - Отступы (margins)
+
+5. **Сессия** - Поведение хранения
+   - Сохранять между сессиями
+   - Авто-сохранение в Bitrix
+   - Предупреждения о потере данных
+
+### 6. Документация
+**Файл:** `/workspace/docs/MULTI_PORTAL_SETTINGS.md`
+
+Полное руководство с:
+- Архитектурой мульти-портальности
+- Примерами API запросов
+- Workflow использования Bitrix изображений
+- Инструкцией по развёртыванию
+- Troubleshooting
 
 ---
 
-## 📁 Структура Проекта
+## 🎯 Ключевые функции
+
+### 1. Умное хранение изображений
+
+#### Без S3 (временное)
+```
+Загрузка → Session Storage → Генерация → Просмотр
+                                    ↓
+                            Удаление при выходе
+```
+
+#### С S3 (постоянное)
+```
+Загрузка → S3 Bucket → Presigned URL → Генерация
+                                           ↓
+                                   Сохранение в S3
+                                           ↓
+                                   Доступ между сессиями
+```
+
+### 2. Интеграция с Bitrix24
+
+#### Сценарий: Использование изображения из CRM
+```
+1. Пользователь в Настройках включает "useBitrixImage"
+2. Выбирает entityType = "deal"
+3. Система загружает поля через crm.deal.fields
+4. Фильтрует поля типа "file" и "multiple_file"
+5. Пользователь выбирает "UF_CRM_IMAGE"
+6. При генерации система:
+   - Проверяет флаг useBitrixImage
+   -Makes GET request to Bitrix API
+   - Получает FILE_ID из поля сущности
+   - Конвертирует в download URL через disk.file.download
+   - Отправляет в OpenRouter
+```
+
+### 3. Шифрование чувствительных данных
+
+```typescript
+// Перед сохранением
+const encrypted = await encryptionService.encrypt(JSON.stringify({
+  apiKey: 'sk-or-...',
+  accessKeyId: 'AKIA...',
+  secretAccessKey: '...'
+}));
+
+// После загрузки
+const decrypted = JSON.parse(
+  await encryptionService.decrypt(storedValue.encrypted)
+);
+```
+
+---
+
+## 📊 Структура файлов
 
 ```
 /workspace
 ├── backend/
+│   ├── prisma/
+│   │   └── migrations/
+│   │       └── 20231027_multi_portal_settings/
+│   │           └── migration.sql ✅
 │   ├── src/
-│   │   ├── adapters/
-│   │   │   └── openrouter.ts          # OpenRouter с ценами/лимитами
-│   │   ├── middleware/
-│   │   │   ├── rbac.middleware.ts     # Ролевая модель
-│   │   │   └── rate-limit.middleware.ts
+│   │   ├── schemas/
+│   │   │   └── portal-settings.schema.ts ✅
 │   │   ├── services/
-│   │   │   ├── encryption/
-│   │   │   │   └── encryption.service.ts
-│   │   │   ├── s3/
-│   │   │   ├── ai/
-│   │   │   │   ├── moderation/
-│   │   │   │   ├── upscale.service.ts
-│   │   │   │   └── ab-test.service.ts
-│   │   │   └── bitrix/
-│   │   │       ├── webhooks/
-│   │   │       └── smart-process.service.ts
-│   │   ├── index.ts                   # Обновлён со всеми сервисами
-│   │   └── config/env.ts              # Обновлённые переменные
-│   └── package.json
+│   │   │   └── settings/
+│   │   │       └── settings.service.ts ✅
+│   │   └── routes/
+│   │       └── settings.routes.ts ✅
+│   └── ...
 ├── frontend/
-│   └── src/components/
-│       ├── comparison/
-│       │   └── ComparisonModal.tsx
-│       └── preset-builder/
-│           └── PresetBuilder.tsx
-├── docs/
-│   ├── TESTING_GUIDE.md               # Полное руководство по тестам
-│   ├── PHASES_IMPLEMENTATION.md
-│   └── IMPROVEMENTS.md
-├── monitoring/
-│   ├── prometheus.yml
-│   └── grafana/
-├── docker-compose.yml
-├── .env.example                       # Обновлённый шаблон
-└── IMPLEMENTATION_SUMMARY.md          # Этот файл
+│   └── src/
+│       └── components/
+│           └── settings/
+│               └── SettingsPanel.tsx ✅
+└── docs/
+    └── MULTI_PORTAL_SETTINGS.md ✅
 ```
 
 ---
 
-## 🔧 Новые API Endpoints
+## 🔐 Безопасность
 
-| Endpoint | Method | Описание |
-|----------|--------|----------|
-| `/api/openrouter/models` | GET | Все модели с ценами и лимитами |
-| `/api/openrouter/models/image` | GET | Только image-модели |
-| `/api/openrouter/models/vision` | GET | Vision модели для пресетов |
-| `/api/bitrix/webhook` | POST | Вебхук Bitrix24 |
-| `/api/bitrix/smart-processes` | GET | Список смарт-процессов |
-| `/api/bitrix/smart-processes/:id/fields` | GET | Поля процесса |
-| `/api/bitrix/smart-processes/:typeId/:entityId/images` | POST | Загрузка изображений |
-| `/api/upscale` | POST | Апскейлинг изображения |
-| `/api/ab-test` | POST | A/B тестирование моделей |
+### Шифрование
+- **Алгоритм:** AES-256-GCM
+- **Ключ:** 32 символа (переменная окружения `ENCRYPTION_KEY`)
+- **Nonce:** Уникальный для каждой записи
+- **Что шифруется:**
+  - OpenRouter API Key
+  - S3 Access Key / Secret Key
+  - Bitrix24 Client Secret / Tokens
+  - Webhook Secrets
 
----
+### RBAC
+```typescript
+const roles = {
+  admin: ['read', 'write', 'delete', 'settings'],
+  manager: ['read', 'write'],
+  viewer: ['read']
+};
 
-## 🚀 Быстрый Старт
-
-### 1. Клонирование и настройка
-
-```bash
-cd /workspace
-cp .env.example .env
-# Отредактируйте .env, указав OPENROUTER_API_KEY
+// Только admin может изменять настройки
+middleware.rbac(['admin']);
 ```
 
-### 2. Запуск Docker
-
-```bash
-docker-compose up -d
+### Rate Limiting
+```typescript
+{
+  rateLimitEnabled: true,
+  rateLimitMax: 100,      // запросов
+  rateLimitWindowMs: 60000 // за 1 минуту
+}
 ```
-
-### 3. Проверка работы
-
-```bash
-# Проверка здоровья
-curl http://localhost:3000/api/health
-
-# Получение моделей OpenRouter
-curl http://localhost:3000/api/openrouter/models/image | jq
-
-# Проверка метрик
-curl http://localhost:3000/metrics
-```
-
-### 4. Доступ к сервисам
-
-| Сервис | URL | Логин/Пароль |
-|--------|-----|--------------|
-| API | http://localhost:3000 | - |
-| Frontend | http://localhost:8080 | - |
-| Grafana | http://localhost:3001 | admin / admin_password_change_me |
-| Prometheus | http://localhost:9090 | - |
-| MinIO Console | http://localhost:9001 | minio_admin / minio_secure_password_change_me |
 
 ---
 
 ## 🧪 Тестирование
 
-Полное руководство: [`/workspace/docs/TESTING_GUIDE.md`](docs/TESTING_GUIDE.md)
+### CURL тесты
 
-### Quick Tests
-
+#### 1. Получить настройки
 ```bash
-# 1. Модели OpenRouter
-curl http://localhost:3000/api/openrouter/models | jq '.data[0]'
+curl http://localhost:3000/api/settings \
+  -H "X-Portal-ID: default-portal" | jq
+```
 
-# 2. RBAC
-curl -H "x-user-role: admin" http://localhost:3000/api/presets
-
-# 3. Rate Limit
-for i in {1..12}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000/api/generate; done
-
-# 4. Модерация
-curl -X POST http://localhost:3000/api/generate \
+#### 2. Обновить OpenRouter ключ
+```bash
+curl -X PUT http://localhost:3000/api/settings \
   -H "Content-Type: application/json" \
-  -d '{"prompt":"violence nsfw"}'
+  -H "X-Portal-ID: default-portal" \
+  -d '{"openrouter":{"apiKey":"sk-or-test123"}}' | jq
+```
+
+#### 3. Включить S3
+```bash
+curl -X PUT http://localhost:3000/api/settings \
+  -H "Content-Type: application/json" \
+  -H "X-Portal-ID: default-portal" \
+  -d '{
+    "s3": {
+      "enabled": true,
+      "endpoint": "http://localhost:9000",
+      "accessKeyId": "minio_admin",
+      "secretAccessKey": "minio_secure_password",
+      "bucketName": "bx-images"
+    }
+  }' | jq
+```
+
+#### 4. Загрузить поля Bitrix
+```bash
+curl "http://localhost:3000/api/settings/bitrix/fields?entityType=deal" \
+  -H "X-Portal-ID: default-portal" | jq
+```
+
+#### 5. Тест S3 подключения
+```bash
+curl -X POST http://localhost:3000/api/settings/s3/test \
+  -H "X-Portal-ID: default-portal" | jq
 ```
 
 ---
 
-## 📊 Метрики и Мониторинг
+## 🚀 Развёртывание
 
-### Основные метрики Prometheus
+### 1. Применение миграций
+```bash
+cd /workspace/backend
+npx prisma migrate dev --name multi_portal_settings
+```
 
-- `ai_jobs_processed_total` - обработанные задачи
-- `ai_jobs_failed_total` - упавшие задачи
-- `ai_generation_duration_seconds` - время генерации
-- `s3_uploads_total` - загрузки в S3
-- `http_request_duration_seconds` - HTTP запросы
+### 2. Установка зависимостей
+```bash
+cd /workspace/backend
+npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
+```
 
-### Dashboards
+### 3. Настройка переменных окружения
+```bash
+# .env
+ENCRYPTION_KEY=your-32-character-secret-key-here-change-me-now
+DEFAULT_PORTAL_ID=default-portal
+REDIS_URL=redis://localhost:6379
+DATABASE_URL=postgresql://user:pass@localhost:5432/bx_ai
+```
 
-Grafana автоматически создаёт datasource Prometheus. Для создания дашбордов:
-1. Откройте http://localhost:3001
-2. Create Dashboard → Add Visualization
-3. Выберите метрики из списка
+### 4. Запуск приложения
+```bash
+docker-compose up -d
+```
 
----
-
-## ⚠️ Важные Замечания
-
-### Безопасность в Production
-
-1. **Смените все пароли по умолчанию:**
-   - `ENCRYPTION_KEY` (32 символа)
-   - `WEBHOOK_SECRET`
-   - `S3_SECRET_KEY`
-   - Пароли Grafana/MinIO в docker-compose.yml
-
-2. **Настройте HTTPS:**
-   - Nginx конфигурация требует SSL сертификатов
-   - Используйте Let's Encrypt или корпоративные сертификаты
-
-3. **Ограничьте доступ:**
-   - Firewall правила для портов 9090 (Prometheus), 9001 (MinIO)
-   - Внутренний доступ к Redis и PostgreSQL
-
-### Производительность
-
-- Worker concurrency: настройте `WORKER_CONCURRENCY` под ваше железо
-- S3 endpoint: используйте внешний S3 для production
-- Кэш моделей: 5 минут по умолчанию, можно изменить в `openrouter.ts`
+### 5. Первоначальная настройка
+1. Открыть http://localhost:3000/settings
+2. Ввести OpenRouter API Key
+3. Опционально: настроить S3
+4. Опционально: подключить Bitrix24
+5. Нажать "Сохранить настройки"
 
 ---
 
-## 📈 Следующие Шаги (Рекомендации)
+## 📈 Метрики и мониторинг
 
-1. **JWT Authentication** - заменить header-based auth на токены
-2. **Email уведомления** - о завершении генерации
-3. **Webhooks для клиентов** - уведомления внешних систем
-4. **Batch генерация** - массовая обработка CSV/Excel
-5. **Интеграция с другими AI** - Replicate, Stability AI напрямую
+### Prometheus метрики
+```promql
+# Количество обновлений настроек
+settings_updates_total{portal_id="default-portal"}
 
----
+# Время загрузки полей Bitrix
+bitrix_fields_load_duration_seconds
 
-## ✅ Чеклист Готовности
+# Ошибки шифрования/дешифровки
+encryption_errors_total
+```
 
-- [x] Все 5 фаз реализованы
-- [x] Код типизирован TypeScript
-- [x] Валидация через Zod
-- [x] Docker compose готов к запуску
-- [x] Документация обновлена
-- [x] Тесты описаны в TESTING_GUIDE.md
-- [x] OpenRouter API с ценами и лимитами
-- [x] Кэширование моделей работает
-- [x] RBAC и Rate Limiting внедрены
-- [x] Bitrix24 вебхуки и смарт-процессы
-- [x] Модерация, апскейлинг, A/B тесты
-- [x] Мониторинг Prometheus + Grafana
+### Grafana дашборды
+- Настройки по порталам
+- Активность изменений
+- Статус подключений (S3, Bitrix)
 
 ---
 
-**Готово к развёртыванию!** 🎉
+## 🛠️ Troubleshooting
+
+### Проблема: Настройки не сохраняются
+**Диагностика:**
+```bash
+# Проверить логи backend
+docker logs bx-ai-backend-1 | grep settings
+
+# Проверить БД
+psql -U user -d bx_ai -c "SELECT * FROM app_settings LIMIT 5;"
+```
+
+**Решение:** Убедитесь, что `ENCRYPTION_KEY` установлен и имеет длину 32 символа
+
+### Проблема: Поля Bitrix не загружаются
+**Диагностика:**
+1. Проверить подключение (кнопка "Тест подключения")
+2. Проверить токен в БД
+3. Проверить права приложения в Bitrix24
+
+**Решение:** Переавторизовать приложение в Bitrix24
+
+### Проблема: Ошибка шифрования
+**Диагностика:**
+```bash
+docker logs bx-ai-backend-1 | grep "Failed to decrypt"
+```
+
+**Решение:** 
+- Не меняйте `ENCRYPTION_KEY` после сохранения настроек
+- Если изменили - сбросьте настройки и настройте заново
+
+---
+
+## ✅ Чеклист готовности
+
+| Функция | Статус | Файл |
+|---------|--------|------|
+| Мульти-портальная архитектура | ✅ | migration.sql |
+| Шифрование настроек | ✅ | settings.service.ts |
+| Настройки OpenRouter в UI | ✅ | SettingsPanel.tsx |
+| Настройки S3 в UI | ✅ | SettingsPanel.tsx |
+| Интеграция Bitrix24 | ✅ | settings.routes.ts |
+| Выбор полей типа FILE | ✅ | settings.service.ts |
+| Toggle useBitrixImage | ✅ | SettingsPanel.tsx |
+| Временное хранение без S3 | ✅ | SettingsPanel.tsx |
+| Постоянное хранение с S3 | ✅ | s3.service.ts |
+| Тестирование подключений | ✅ | settings.routes.ts |
+| Валидация Zod схемами | ✅ | portal-settings.schema.ts |
+| Документация | ✅ | MULTI_PORTAL_SETTINGS.md |
+| RBAC защита | ✅ | rbac.middleware.ts |
+| Rate limiting | ✅ | rate-limit.middleware.ts |
+
+---
+
+## 📚 Связанные документы
+
+- [PHASES_IMPLEMENTATION.md](./docs/PHASES_IMPLEMENTATION.md) - Все 5 фаз разработки
+- [TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) - Руководство по тестированию
+- [CATALOG.md](./docs/CATALOG.md) - Каталог всех функций
+- [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - Архитектура приложения
+- [MULTI_PORTAL_SETTINGS.md](./docs/MULTI_PORTAL_SETTINGS.md) - Полное руководство по настройкам
+
+---
+
+**Версия:** 2.0  
+**Дата:** 2024-01-15  
+**Статус:** ✅ Production Ready  
+**Автор:** AI Assistant
