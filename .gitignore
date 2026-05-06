@@ -1,67 +1,58 @@
 ```
 # Dependencies
 node_modules/
+.pnpm-store/
+.npm/
+.yarn/
 
-# Build artifacts
+# Build outputs
 dist/
 build/
+coverage/
 target/
+.out/
+.bundle/
 
-# Cache directories
-.cache/
-.tmp/
-.temp/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+.env
+.env.local
+.env.*
 
 # Logs
 *.log
-
-# Environment files
-.env
-.env.local
-*.env.*
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Python specific
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-.coverage
-htmlcov/
-.coverage.*
-.pytest_cache/
-.mypy_cache/
-
-# Node.js specific
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Compiled JavaScript
-*.min.js
-*.bundle.js
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# Distribution / packaging
-*.tar*
-*.zip
-*.gz
-*.bz2
-*.xz
-*.7z
-*.rar
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # Testing
-coverage/
-.nyc_output/
+.mypy_cache/
+.pytest_cache/
+coverage.xml
+htmlcov/
+
+# Prisma
+prisma/migrations/
 ```

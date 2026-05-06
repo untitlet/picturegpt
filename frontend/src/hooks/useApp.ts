@@ -1,60 +1,34 @@
 import { useState, useCallback } from 'react';
-import { HelpSection } from '../components/help/HelpPanel';
 
-interface AppState {
-  activeTab: string;
-  isHelpOpen: boolean;
-  helpSection: string;
-}
+export function useApp() {
+  const [activeTab, setActiveTab] = useState<string>('creation');
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [helpSection, setHelpSection] = useState<string>('creation');
 
-export const useApp = () => {
-  const [state, setState] = useState<AppState>({
-    activeTab: 'creation',
-    isHelpOpen: false,
-    helpSection: 'creation',
-  });
-
-  const setActiveTab = useCallback((tab: string) => {
-    setState(prev => ({
-      ...prev,
-      activeTab: tab,
-      helpSection: tab, // Автоматически переключаем раздел помощи
-    }));
-  }, []);
-
-  const openHelp = useCallback((sectionId?: string) => {
-    setState(prev => ({
-      ...prev,
-      isHelpOpen: true,
-      helpSection: sectionId || prev.helpSection,
-    }));
-  }, []);
+  const toggleHelp = useCallback(() => {
+    setIsHelpOpen((prev) => !prev);
+    // Sync help section with active tab
+    setHelpSection(activeTab);
+  }, [activeTab]);
 
   const closeHelp = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      isHelpOpen: false,
-    }));
+    setIsHelpOpen(false);
   }, []);
 
-  const toggleHelp = useCallback((sectionId?: string) => {
-    setState(prev => {
-      const shouldOpen = !prev.isHelpOpen;
-      return {
-        ...prev,
-        isHelpOpen: shouldOpen,
-        helpSection: sectionId || prev.helpSection,
-      };
-    });
-  }, []);
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+    // Update help section when tab changes and panel is open
+    if (isHelpOpen) {
+      setHelpSection(tab);
+    }
+  }, [isHelpOpen]);
 
   return {
-    activeTab: state.activeTab,
-    isHelpOpen: state.isHelpOpen,
-    helpSection: state.helpSection,
-    setActiveTab,
-    openHelp,
-    closeHelp,
+    activeTab,
+    isHelpOpen,
+    helpSection,
+    setActiveTab: handleTabChange,
     toggleHelp,
+    closeHelp,
   };
-};
+}
