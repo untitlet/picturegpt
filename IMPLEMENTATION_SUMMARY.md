@@ -210,7 +210,11 @@ docker-compose --profile webhook-test up -d
 - Error Rates
 - S3 Operations
 
----
+### 1. Применение миграций
+```bash
+cd /workspace/backend
+npx prisma migrate dev --name multi_portal_settings
+```
 
 ### 🧪 Тестирование
 
@@ -236,6 +240,11 @@ cd frontend && npm run test:e2e
 - Monitoring
 - E2E scenarios
 
+### Grafana дашборды
+- Настройки по порталам
+- Активность изменений
+- Статус подключений (S3, Bitrix)
+
 ---
 
 ### 📚 Документация
@@ -248,7 +257,7 @@ cd frontend && npm run test:e2e
 | [docs/CATALOG.md](docs/CATALOG.md) | Каталог всех функций |
 | [docs/PHASES_IMPLEMENTATION.md](docs/PHASES_IMPLEMENTATION.md) | Детали реализации по фазам |
 
----
+**Решение:** Переавторизовать приложение в Bitrix24
 
 ### 🎯 Критерии готовности
 
