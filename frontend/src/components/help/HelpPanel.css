@@ -1,0 +1,190 @@
+.bx-help-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn var(--bx-transition-base);
+}
+
+.bx-help-panel {
+  width: 450px;
+  max-width: 100%;
+  height: 100vh;
+  background: var(--bx-white);
+  box-shadow: var(--bx-shadow-xl);
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight var(--bx-transition-slow);
+}
+
+.bx-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--bx-spacing-lg);
+  border-bottom: 1px solid var(--bx-gray-200);
+  background: var(--bx-gray-50);
+}
+
+.bx-help-title {
+  font-size: var(--bx-font-size-xl);
+  font-weight: 700;
+  color: var(--bx-gray-800);
+  margin: 0;
+}
+
+.bx-help-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--bx-radius-full);
+  border: none;
+  background: var(--bx-gray-200);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--bx-font-size-lg);
+  color: var(--bx-gray-600);
+  transition: all var(--bx-transition-fast);
+}
+
+.bx-help-close:hover {
+  background: var(--bx-danger);
+  color: var(--bx-white);
+}
+
+.bx-help-search {
+  padding: var(--bx-spacing-md) var(--bx-spacing-lg);
+  border-bottom: 1px solid var(--bx-gray-200);
+}
+
+.bx-help-section-info {
+  padding: var(--bx-spacing-md) var(--bx-spacing-lg);
+  background: var(--bx-gray-50);
+  border-bottom: 1px solid var(--bx-gray-200);
+}
+
+.bx-help-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--bx-spacing-lg);
+}
+
+.bx-help-empty {
+  text-align: center;
+  padding: var(--bx-spacing-2xl);
+  color: var(--bx-gray-500);
+}
+
+.bx-help-topic {
+  margin-bottom: var(--bx-spacing-md);
+  border: 1px solid var(--bx-gray-200);
+  border-radius: var(--bx-radius-lg);
+  overflow: hidden;
+  transition: all var(--bx-transition-fast);
+}
+
+.bx-help-topic:hover {
+  box-shadow: var(--bx-shadow-sm);
+}
+
+.bx-help-topic.expanded {
+  border-color: var(--bx-primary);
+  box-shadow: var(--bx-shadow-md);
+}
+
+.bx-help-topic-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--bx-spacing-md);
+  background: var(--bx-white);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--bx-font-size-sm);
+  font-weight: 600;
+  color: var(--bx-gray-800);
+  transition: background var(--bx-transition-fast);
+}
+
+.bx-help-topic-header:hover {
+  background: var(--bx-gray-50);
+}
+
+.bx-help-topic-toggle {
+  font-size: var(--bx-font-size-xl);
+  font-weight: 300;
+  color: var(--bx-primary);
+  transition: transform var(--bx-transition-fast);
+}
+
+.bx-help-topic.expanded .bx-help-topic-toggle {
+  transform: rotate(0deg);
+}
+
+.bx-help-topic-content {
+  padding: var(--bx-spacing-md) var(--bx-spacing-lg) var(--bx-spacing-lg);
+  background: var(--bx-gray-50);
+  border-top: 1px solid var(--bx-gray-200);
+}
+
+.bx-help-topic-content p {
+  font-size: var(--bx-font-size-sm);
+  line-height: 1.6;
+  color: var(--bx-gray-700);
+  margin-bottom: var(--bx-spacing-md);
+}
+
+.bx-help-related {
+  margin-top: var(--bx-spacing-md);
+  padding-top: var(--bx-spacing-md);
+  border-top: 1px solid var(--bx-gray-200);
+}
+
+.bx-help-related strong {
+  display: block;
+  font-size: var(--bx-font-size-xs);
+  color: var(--bx-gray-600);
+  margin-bottom: var(--bx-spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bx-help-related ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bx-help-related li {
+  font-size: var(--bx-font-size-sm);
+  color: var(--bx-primary);
+  padding: var(--bx-spacing-xs) 0;
+  cursor: pointer;
+  transition: color var(--bx-transition-fast);
+}
+
+.bx-help-related li:hover {
+  color: var(--bx-primary-hover);
+  text-decoration: underline;
+}
+
+.bx-help-footer {
+  padding: var(--bx-spacing-lg);
+  border-top: 1px solid var(--bx-gray-200);
+  background: var(--bx-gray-50);
+  text-align: center;
+}
+
+.bx-help-footer p {
+  font-size: var(--bx-font-size-sm);
+  color: var(--bx-gray-600);
+  margin-bottom: var(--bx-spacing-md);
+}
