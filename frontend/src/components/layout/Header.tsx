@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { HelpPanel } from '../help/HelpPanel';
-import './Header.css';
+import React from 'react';
 
 interface HeaderProps {
   activeTab: string;
@@ -9,8 +7,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onHelpToggle }) => {
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-
   const tabs = [
     { id: 'creation', label: 'Создание', icon: '🎨' },
     { id: 'presets', label: 'Пресеты', icon: '📋' },
@@ -19,52 +15,51 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onHelpTo
   ];
 
   return (
-    <header className="bx-header">
-      <div className="bx-header-left">
-        <div className="bx-logo">
-          <span className="bx-logo-icon">🤖</span>
-          <span className="bx-logo-text">AI Generator</span>
-        </div>
-      </div>
-
-      <nav className="bx-header-nav">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`bx-header-tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => onTabChange(tab.id)}
-          >
-            <span className="bx-tab-icon">{tab.icon}</span>
-            <span className="bx-tab-label">{tab.label}</span>
-          </button>
-        ))}
-      </nav>
-
-      <div className="bx-header-right">
-        <button 
-          className="bx-header-help-btn"
-          onClick={onHelpToggle}
-          title="Помощь"
-        >
-          <span className="bx-help-icon">❓</span>
-        </button>
-
-        <div className="bx-user-menu">
-          <button 
-            className="bx-user-avatar"
-            onClick={() => setUserMenuOpen(!userMenuOpen)}
-          >
-            <img src="https://via.placeholder.com/32" alt="User" />
-          </button>
-          
-          {userMenuOpen && (
-            <div className="bx-user-dropdown">
-              <div className="bx-dropdown-item">Профиль</div>
-              <div className="bx-dropdown-item">Настройки</div>
-              <div className="bx-dropdown-divider"></div>
-              <div className="bx-dropdown-item danger">Выйти</div>
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm">
+              <span className="text-xl">🤖</span>
             </div>
-          )}
+            <div>
+              <h1 className="text-lg font-bold text-slate-900 leading-tight">AI Generator</h1>
+              <p className="text-xs text-slate-500 -mt-0.5">Bitrix24 Integration</p>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <nav className="flex items-center gap-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`
+                  inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                  ${activeTab === tab.id 
+                    ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200' 
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }
+                `}
+              >
+                <span className="text-base">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          {/* Right Actions: Only Help Button */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onHelpToggle}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200"
+              title="Помощь и документация"
+            >
+              <span className="text-lg">❓</span>
+              <span className="hidden sm:inline">Помощь</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>

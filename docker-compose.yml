@@ -213,6 +213,21 @@ services:
       - ai_network
     restart: unless-stopped
 
+  # Cloudflare Tunnel for Webhook Testing (Optional)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: ai_generator_cloudflared
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      - nginx
+    networks:
+      - ai_network
+    restart: unless-stopped
+    profiles:
+      - webhook-test
+
 networks:
   ai_network:
     driver: bridge

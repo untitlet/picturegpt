@@ -1,4 +1,14 @@
 ```
+# Environment files
+.env.local
+.env.*
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Editors
+.vscode/
 # Dependencies
 node_modules/
 .pnpm-store/
